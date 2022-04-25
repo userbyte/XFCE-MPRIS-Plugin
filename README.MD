@@ -1,5 +1,5 @@
 # XFCE Spotify Plugin
-## Note: this is a fork of https://github.com/macr1408/XFCE-Spotify-Plugin, modified to use playerctl instead of the Spotify Web API
+## Note: this is a fork of https://github.com/macr1408/XFCE-Spotify-Plugin, modified to use playerctl instead of the Spotify Web API. Also now supports album art.
 
 This plugin integrates Spotify's Now Playing feature with XFCE Panel.
 
@@ -18,6 +18,7 @@ This plugin integrates Spotify's Now Playing feature with XFCE Panel.
 - [playerctl (for getting spotify metadata)](https://github.com/altdesktop/playerctl)
 - Jq (sudo apt install jq)
 - CURL
+- (Optional) Python3 for image support
 
 For Linux Mint, you can download Genmon from the software manager.
 
@@ -32,6 +33,13 @@ For Linux Mint, you can download Genmon from the software manager.
 3. Create a "Generic Monitor" item on your panel
 4. Edit properties of this "Generic Monitor" item to execute the file xfce-spotify-main.sh, hide the label *(or don't, it's up to you lol)*, and set a period of 10 seconds
 5. Enjoy!
+
+### Image support (requires python3)
+
+#### To enable album artwork display:
+
+1. Run this command to install the required python dependencies: `python3 -m pip install python-resize-image pillow wget`
+2. Change `IMGENABLE` to "true" in config.sh, and optionally edit `IMGSIZE` to match your panel height.
 
 ## F.A.Q
 

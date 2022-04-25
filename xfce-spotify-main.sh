@@ -17,7 +17,7 @@ source $CONFIGFILE
 # PLAYER="spotify" # grabbed from config
 
 #FORMAT="{{ artist }} - {{ title }}"
-FORMAT='{"title": "{{ title }}", "artist": "{{ artist }}", "album": "{{ album }}"}'
+FORMAT='{"title": "{{ title }}", "artist": "{{ artist }}", "album": "{{ album }}", "link": "{{ xesam:url }}", "arturl": "{{ mpris:artUrl }}"}'
 
 PLAYERCTL_STATUS=$(playerctl --player=$PLAYER status 2>/dev/null)
 EXIT_CODE=$?
@@ -45,8 +45,7 @@ fi
 ARTIST=$(jq -r '.artist' $SONGFILE)
 TRACK=$(jq -r '.title' $SONGFILE)
 ALBUM=$(jq -r '.album' $SONGFILE)
-#SONGLINK=$(jq -r '.link' $SONGFILE) # cant get from formatting, so we'll use another method
-SONGLINK=$(python3 $CURRENTDIR/extra/geturl.py)
+SONGLINK=$(jq -r '.link' $SONGFILE)
 ## cant get current progress from spotify metadata for some reason, commenting this out cuz not work. but leaving it in incase i wanna fix it in the future
 #CURRENTPROGRESS=$(jq -r '.curprog' $SONGFILE) 
 #CURPROGSECS=$(echo $CURRENTPROGRESS | awk -F: '{ print ($1 * 60) + ($2)}') # converts MM:SS to seconds
@@ -59,12 +58,20 @@ SONGLINK=$(python3 $CURRENTDIR/extra/geturl.py)
 #TOTALPROGRESS=$(expr $CURRENTPROGRESS / $TOTALPROGRESS )
 
 source $CONFIGFILE
+if [ "$IMGENABLE" = "true" ]
+then
+    IMGURL=$(jq -r '.arturl' $SONGFILE)
+    /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
+    IMG="<img>$CURRENTDIR/out.png</img>"
+    #echo "image enabled"
+fi
 if [ -n "$TRACK" ]
 then
     echo "<txt>$OUTFORMAT</txt>"
     echo "<tool>$ALBUM</tool>"
     #echo "<bar>$TOTALPROGRESS</bar>"
     echo "<txtclick>xdg-open $SONGLINK</txtclick>"
+    echo "$IMG"
 else
     echo "<txt></txt>"
 fi
