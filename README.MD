@@ -29,9 +29,10 @@ For Linux Mint, you can download Genmon from the software manager.
 
 ### Installing this plugin
 1. Download/clone this repo to somewhere you want the program to live
-2. Create a "Generic Monitor" item on your panel
-3. Edit properties of this "Generic Monitor" item to execute the file xfce-spotify-main.sh, hide the label *(or don't, it's up to you lol)*, and set a period of 10 seconds
-4. Enjoy!
+2. Cd into the folder that was downloaded, then make `xfce-spotify-main.sh` executable: `cd XFCE-Spotify-Plugin && chmod +x xfce-spotify-main.sh`
+3. Create a "Generic Monitor" item on your panel
+4. Edit properties of this "Generic Monitor" item to execute the file xfce-spotify-main.sh, hide the label *(or don't, it's up to you lol)*, and set a period of 10 seconds
+5. Enjoy!
 
 ## F.A.Q
 
