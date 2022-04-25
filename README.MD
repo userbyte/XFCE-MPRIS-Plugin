@@ -10,7 +10,6 @@ This plugin integrates Spotify's Now Playing feature with XFCE Panel.
 - Shows the current song playing.
 - If you hover over the name, you will see the album
 - If you click the name, you will be redirected to the Spotify song in the browser.
-- Progress bar of the song.
 
 ## What are the requirements for this?
 
