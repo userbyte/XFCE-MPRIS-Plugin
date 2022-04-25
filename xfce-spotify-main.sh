@@ -33,12 +33,18 @@ if [ "$1" == "--status" ]; then
 else
     if [ "$STATUS" = "Stopped" ]; then
         echo "No music is playing"
+        OUTFORMAT="(stopped)"
+        STATUSCHAR="⏹"
     elif [ "$STATUS" = "Paused"  ]; then
         playerctl --player=$PLAYER metadata --format "$FORMAT"
+        STATUSCHAR="⏸"
     elif [ "$STATUS" = "No player is running"  ]; then
         echo "$STATUS"
+        OUTFORMAT="(stopped)"
+        STATUSCHAR="⏹"
     else
         playerctl --player=$PLAYER metadata --format "$FORMAT" > $SONGFILE
+        STATUSCHAR="▶"
     fi
 fi
 
