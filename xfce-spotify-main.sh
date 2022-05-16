@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script orignally made by macr1408 (https://github.com/macr1408), modified by userbyte (https://github.com/userbyte) to use playerctl instead of the Spotify API because I could't get it to work
-# Made for non Commercial use
+# Made for non-commercial use
 
 if ! pgrep -x spotify >/dev/null && ! pgrep -x chrome >/dev/null && ! pgrep -x firefox >/dev/null
 then
