@@ -3,18 +3,36 @@
 # Script orignally made by macr1408 (https://github.com/macr1408), modified by userbyte (https://github.com/userbyte) to use playerctl instead of the Spotify API because I could't get it to work
 # Made for non-commercial use
 
-if ! pgrep -x spotify >/dev/null && ! pgrep -x chrome >/dev/null && ! pgrep -x firefox >/dev/null && ! pgrep -f lollypop >/dev/null
-then
-    echo "<txt></txt>"
-    exit 1;
-fi
-
 CURRENTDIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 CONFIGFILE="$CURRENTDIR/config.sh"
 SONGFILE="$CURRENTDIR/current_song.json"
 source $CONFIGFILE
 
-# PLAYER="spotify" # grabbed from config
+if [ "$PLAYER" = "auto" ]; then
+    #echo "auto-detecting player using prio list: $PRIOLIST"
+    PLAYER="$PRIOLIST"
+fi
+
+IFS=',' read -ra p_array <<< "$PLAYER"
+FOUNDONE="0"
+for i in "${p_array[@]}"
+do
+    if pgrep -x $i >/dev/null
+    then
+        # echo "$i found"
+        FOUNDONE="1"
+        : # pass
+    else
+        # echo "$i not found"
+        : # pass
+    fi
+done
+
+if [ "$FOUNDONE" = "0" ]; then
+    # echo "didnt find any valid players running, returning empty thing and exiting..."
+    echo "<txt></txt>"
+    exit 1;
+fi
 
 #FORMAT="{{ artist }} - {{ title }}"
 FORMAT='{"title": "{{ title }}", "artist": "{{ artist }}", "album": "{{ album }}", "link": "{{ xesam:url }}", "arturl": "{{ mpris:artUrl }}"}'
