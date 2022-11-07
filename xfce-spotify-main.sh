@@ -66,10 +66,19 @@ SONGLINK=$(jq -r '.link' $SONGFILE)
 source $CONFIGFILE
 if [ "$IMGENABLE" = "true" ]
 then
-    IMGURL=$(jq -r '.arturl' $SONGFILE)
-    /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
-    IMG="<img>$CURRENTDIR/out.png</img>"
     #echo "image enabled"
+    IMGURL=$(jq -r '.arturl' $SONGFILE)
+    if [ "$IMGURL" = "" ]
+    then
+        #echo "IMGURL is empty, using unknown artwork."
+        IMGURL="file://$CURRENTDIR/unknown.png"
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
+        IMG="<img>$CURRENTDIR/out.png</img>"
+    else
+        #echo "IMGURL is not empty W"
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
+        IMG="<img>$CURRENTDIR/out.png</img>"
+    fi
 fi
 if [ -n "$TRACK" ]
 then
