@@ -5,7 +5,14 @@
 
 CURRENTDIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
 CONFIGFILE="$CURRENTDIR/config.sh"
-SONGFILE="$CURRENTDIR/current_song.json"
+if [ "$XDG_CACHE_HOME" = "" ]
+then
+    CACHEDIR=$CURRENTDIR/cache
+else
+    mkdir -p $XDG_CACHE_HOME/XFCE-Spotify-Plugin
+    CACHEDIR=$XDG_CACHE_HOME/XFCE-Spotify-Plugin
+fi
+SONGFILE="$CACHEDIR/current_song.json"
 source $CONFIGFILE
 
 if [ "$PLAYER" = "auto" ]; then
@@ -54,14 +61,14 @@ else
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     elif [ "$STATUS" = "Paused"  ]; then
-        playerctl --player=$PLAYER metadata --format "$FORMAT"
+        playerctl --player=$PLAYER metadata --format "$FORMAT" | /usr/bin/python3 $CURRENTDIR/escapejson.py > $SONGFILE
         STATUSCHAR="⏸"
     elif [ "$STATUS" = "No player is running"  ]; then
         echo "$STATUS"
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     else
-        playerctl --player=$PLAYER metadata --format "$FORMAT" > $SONGFILE
+        playerctl --player=$PLAYER metadata --format "$FORMAT" | /usr/bin/python3 $CURRENTDIR/escapejson.py > $SONGFILE
         STATUSCHAR="▶"
     fi
 fi
@@ -89,19 +96,20 @@ then
     if [ "$IMGURL" = "" ]
     then
         #echo "IMGURL is empty, using unknown artwork."
-        IMGURL="file://$CURRENTDIR/unknown.png"
-        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
+        IMGURL="file://$CACHEDIR/unknown.png"
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR $IMGURL $IMGSIZE
         IMG="<img>$CURRENTDIR/out.png</img>"
     else
         #echo "IMGURL is not empty W"
-        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CURRENTDIR $IMGURL $IMGSIZE
-        IMG="<img>$CURRENTDIR/out.png</img>"
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR $IMGURL $IMGSIZE
+        IMG="<img>$CACHEDIR/out.png</img>"
     fi
 fi
+OUTFORMAT=${OUTFORMAT:0:LENGTH_LIMIT}
 if [ -n "$TRACK" ]
 then
     echo "<txt>$OUTFORMAT</txt>"
-    echo "<tool>$ALBUM</tool>"
+    echo "<tool>$HOVERFORMAT</tool>"
     #echo "<bar>$TOTALPROGRESS</bar>"
     echo "<txtclick>xdg-open $SONGLINK</txtclick>"
     echo "$IMG"

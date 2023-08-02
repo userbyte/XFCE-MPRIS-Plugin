@@ -19,7 +19,7 @@ This plugin integrates Spotify's Now Playing feature with XFCE Panel.
 - [playerctl (for getting spotify metadata)](https://github.com/altdesktop/playerctl)
 - [jq](https://stedolan.github.io/jq/) (sudo apt install jq)
 - cURL
-- (Optional) Python3 for image support
+- Python3 (for JSON escaping and image support)
 
 Genmon usually comes in the "xfce4-goodies" package for your distribution.
 
