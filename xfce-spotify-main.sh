@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script orignally made by macr1408 (https://github.com/macr1408), modified by userbyte (https://github.com/userbyte) to use playerctl instead of the Spotify API because I could't get it to work
+# Script orignally made by macr1408 (https://github.com/macr1408), modified by userbyte (https://github.com/userbyte) to avoid using the Spotify Web API
 # Made for non-commercial use
 
 CURRENTDIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
@@ -12,43 +12,22 @@ else
     mkdir -p $XDG_CACHE_HOME/XFCE-Spotify-Plugin
     CACHEDIR=$XDG_CACHE_HOME/XFCE-Spotify-Plugin
 fi
-SONGFILE="$CACHEDIR/current_song.json"
-source $CONFIGFILE
+# SONGFILE="$CACHEDIR/current_song.json"
 
-if [ "$PLAYER" = "auto" ]; then
-    #echo "auto-detecting player using prio list: $PRIOLIST"
-    PLAYER="$PRIOLIST"
-fi
+# get the first MPRIS player found on dbus
+PLAYER=$(dbus-send --print-reply --dest=org.freedesktop.DBus  /org/freedesktop/DBus org.freedesktop.DBus.ListNames | grep -oP 'org.mpris.MediaPlayer2.*' | sed 's/"//')
+PLAYER=$(echo $PLAYER | sed s/\ .*//)
 
-IFS=',' read -ra p_array <<< "$PLAYER"
-FOUNDONE="0"
-for i in "${p_array[@]}"
-do
-    if pgrep -x $i >/dev/null
-    then
-        # echo "$i found"
-        FOUNDONE="1"
-        : # pass
-    else
-        # echo "$i not found"
-        : # pass
-    fi
-done
-
-if [ "$FOUNDONE" = "0" ]; then
-    # echo "didnt find any valid players running, returning empty thing and exiting..."
-    echo "<txt></txt>"
+if [ -z "$PLAYER" ]; then
+    echo "<txt>No player running</txt>"
     exit 1;
 fi
 
-#FORMAT="{{ artist }} - {{ title }}"
-FORMAT='{"title": "{{ title }}", "artist": "{{ artist }}", "album": "{{ album }}", "link": "{{ xesam:url }}", "arturl": "{{ mpris:artUrl }}"}'
-
-PLAYERCTL_STATUS=$(playerctl --player=$PLAYER status 2>/dev/null)
+PLAYER_STATUS=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:PlaybackStatus)
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
-    STATUS=$PLAYERCTL_STATUS
+    STATUS=$PLAYER_STATUS
 else
     STATUS="No player is running"
 fi
@@ -61,22 +40,23 @@ else
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     elif [ "$STATUS" = "Paused"  ]; then
-        playerctl --player=$PLAYER metadata --format "$FORMAT" | /usr/bin/python3 $CURRENTDIR/escapejson.py > $SONGFILE
+        METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
         STATUSCHAR="⏸"
     elif [ "$STATUS" = "No player is running"  ]; then
         echo "$STATUS"
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     else
-        playerctl --player=$PLAYER metadata --format "$FORMAT" | /usr/bin/python3 $CURRENTDIR/escapejson.py > $SONGFILE
+        METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
         STATUSCHAR="▶"
     fi
 fi
 
-ARTIST=$(jq -r '.artist' $SONGFILE)
-TRACK=$(jq -r '.title' $SONGFILE)
-ALBUM=$(jq -r '.album' $SONGFILE)
-SONGLINK=$(jq -r '.link' $SONGFILE)
+ARTIST=$(echo $METADATA | grep -oP 'xesam:artist.*' | sed 's/xesam:artist" variant array \[ string //' | awk -F \" '{print $2}')
+TRACK=$(echo $METADATA | grep -oP 'xesam:title.*' | sed 's/xesam:title" variant string//' | awk -F \" '{print $2}')
+ALBUM=$(echo $METADATA | grep -oP 'xesam:album.*' | sed 's/xesam:album" variant string//' | awk -F \" '{print $2}')
+SONGLINK=$(echo $METADATA | grep -oP 'xesam:url.*' | sed 's/xesam:url" variant string//' | awk -F \" '{print $2}')
+
 ## cant get current progress from spotify metadata for some reason, commenting this out cuz not work. but leaving it in incase i wanna fix it in the future
 #CURRENTPROGRESS=$(jq -r '.curprog' $SONGFILE) 
 #CURPROGSECS=$(echo $CURRENTPROGRESS | awk -F: '{ print ($1 * 60) + ($2)}') # converts MM:SS to seconds
@@ -92,16 +72,16 @@ source $CONFIGFILE
 if [ "$IMGENABLE" = "true" ]
 then
     #echo "image enabled"
-    IMGURL=$(jq -r '.arturl' $SONGFILE)
+    IMGURL=$(echo $METADATA | grep -oP 'mpris:artUrl.*' | sed 's/mpris:artUrl" variant string//' | awk -F \" '{print $2}')
     if [ "$IMGURL" = "" ]
     then
         #echo "IMGURL is empty, using unknown artwork."
-        IMGURL="file://$CACHEDIR/unknown.png"
-        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR $IMGURL $IMGSIZE
-        IMG="<img>$CURRENTDIR/out.png</img>"
+        IMGURL="file://$CURRENTDIR/unknown.png"
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR "$IMGURL" $IMGSIZE
+        IMG="<img>$CACHEDIR/out.png</img>"
     else
         #echo "IMGURL is not empty W"
-        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR $IMGURL $IMGSIZE
+        /usr/bin/python3 $CURRENTDIR/imageresizer.py $CACHEDIR "$IMGURL" $IMGSIZE
         IMG="<img>$CACHEDIR/out.png</img>"
     fi
 fi
