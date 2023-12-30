@@ -19,7 +19,8 @@ PLAYER=$(dbus-send --print-reply --dest=org.freedesktop.DBus  /org/freedesktop/D
 PLAYER=$(echo $PLAYER | sed s/\ .*//)
 
 if [ -z "$PLAYER" ]; then
-    echo "<txt>No player running</txt>"
+    echo "No player running"
+    echo "<txt></txt>"
     exit 1;
 fi
 
