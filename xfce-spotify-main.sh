@@ -25,6 +25,7 @@ if [ -z "$PLAYER" ]; then
 fi
 
 PLAYER_STATUS=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:PlaybackStatus)
+PLAYER_STATUS=$(echo $PLAYER_STATUS | sed 's/variant string//' | awk -F \" '{print $2}')
 EXIT_CODE=$?
 
 if [ $EXIT_CODE -eq 0 ]; then
@@ -41,13 +42,15 @@ else
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     elif [ "$STATUS" = "Paused"  ]; then
+        #echo "$STATUS"
         METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
         STATUSCHAR="⏸"
     elif [ "$STATUS" = "No player is running"  ]; then
-        echo "$STATUS"
+        #echo "$STATUS"
         OUTFORMAT="(stopped)"
         STATUSCHAR="⏹"
     else
+        #echo "$STATUS"
         METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
         STATUSCHAR="▶"
     fi
