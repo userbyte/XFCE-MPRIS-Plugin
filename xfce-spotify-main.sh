@@ -36,24 +36,25 @@ fi
 
 if [ "$1" == "--status" ]; then
     echo "$STATUS"
+    exit
+fi
+
+if [ "$STATUS" = "Stopped" ]; then
+    echo "No music is playing"
+    OUTFORMAT="(stopped)"
+    STATUSCHAR="⏹"
+elif [ "$STATUS" = "Paused"  ]; then
+    #echo "$STATUS"
+    METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
+    STATUSCHAR="⏸"
+elif [ "$STATUS" = "No player is running"  ]; then
+    #echo "$STATUS"
+    OUTFORMAT="(stopped)"
+    STATUSCHAR="⏹"
 else
-    if [ "$STATUS" = "Stopped" ]; then
-        echo "No music is playing"
-        OUTFORMAT="(stopped)"
-        STATUSCHAR="⏹"
-    elif [ "$STATUS" = "Paused"  ]; then
-        #echo "$STATUS"
-        METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
-        STATUSCHAR="⏸"
-    elif [ "$STATUS" = "No player is running"  ]; then
-        #echo "$STATUS"
-        OUTFORMAT="(stopped)"
-        STATUSCHAR="⏹"
-    else
-        #echo "$STATUS"
-        METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
-        STATUSCHAR="▶"
-    fi
+    #echo "$STATUS"
+    METADATA=$(dbus-send --print-reply --dest=$PLAYER /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:org.mpris.MediaPlayer2.Player string:Metadata)
+    STATUSCHAR="▶"
 fi
 
 ARTIST=$(echo $METADATA | grep -oP 'xesam:artist.*' | sed 's/xesam:artist" variant array \[ string //' | awk -F \" '{print $2}')
