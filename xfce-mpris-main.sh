@@ -9,8 +9,8 @@ if [ "$XDG_CACHE_HOME" = "" ]
 then
     CACHEDIR=$CURRENTDIR/cache
 else
-    mkdir -p $XDG_CACHE_HOME/XFCE-Spotify-Plugin
-    CACHEDIR=$XDG_CACHE_HOME/XFCE-Spotify-Plugin
+    mkdir -p $XDG_CACHE_HOME/XFCE-MPRIS-Plugin
+    CACHEDIR=$XDG_CACHE_HOME/XFCE-MPRIS-Plugin
 fi
 # SONGFILE="$CACHEDIR/current_song.json"
 
