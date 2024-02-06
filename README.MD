@@ -1,7 +1,7 @@
-# XFCE Spotify Plugin
-## Note: this is a fork of https://github.com/macr1408/XFCE-Spotify-Plugin, modified to use playerctl instead of the Spotify Web API. Also now supports album art.
+# XFCE MPRIS Plugin
+## Note: this is a fork of https://github.com/macr1408/XFCE-Spotify-Plugin, modified to support all MPRIS2 players, instead of just Spotify via the Spotify Web API.
 
-This plugin integrates Spotify's Now Playing feature with XFCE Panel.
+This plugin integrates MRPIS Now Playing feature with XFCE Panel.
 
 ![example](example.png)
 
@@ -16,23 +16,18 @@ This plugin integrates Spotify's Now Playing feature with XFCE Panel.
 
 - XFCE *(well, technically just the XFCE panel. this plugin should work on any WM/DE the panel will run on)*
 - [XFCE Plugin: Genmon (Generic Monitor)](https://goodies.xfce.org/projects/panel-plugins/xfce4-genmon-plugin)
-- [playerctl (for getting spotify metadata)](https://github.com/altdesktop/playerctl)
-- [jq](https://stedolan.github.io/jq/) (sudo apt install jq)
-- cURL
-- Python3 (for JSON escaping and image support)
+- D-Bus
+- Python3 (for image support)
 
 Genmon usually comes in the "xfce4-goodies" package for your distribution.
 
 ## Installation
 
-### Install playerctl (https://github.com/altdesktop/playerctl)
-#### Refer to https://github.com/altdesktop/playerctl#installing for installation.
-
 ### Installing this plugin
 1. Download/clone this repo to somewhere you want the program to live
-2. Cd into the folder that was downloaded, then make `xfce-spotify-main.sh` executable: `cd XFCE-Spotify-Plugin && chmod +x xfce-spotify-main.sh`
+2. Cd into the folder that was downloaded, then make `xfce-mpris-main.sh` executable: `cd XFCE-MPRIS-Plugin && chmod +x xfce-mpris-main.sh`
 3. Create a "Generic Monitor" item on your panel
-4. Edit properties of this "Generic Monitor" item to execute the file xfce-spotify-main.sh, hide the label *(or don't, it's up to you lol)*, and set a period of 10 seconds
+4. Edit properties of this "Generic Monitor" item to execute the file xfce-mpris-main.sh, hide the label *(or don't, it's up to you lol)*, and set a period of 10 seconds
 5. Enjoy!
 
 ### Image support (requires python3)
@@ -58,10 +53,10 @@ Sure, go for it! Since we're getting the song data locally, we are not limited t
 
 ### **What was the motivation for making this fork?**
 
-I was having issues with getting the Spotify API to work, I believe their API has changed causing the original project to break (I don't remember the error). It might work fine... and I may just be stupid, but I spent about an hour reading Spotify docs trying to get it working with no success, and decided using something else would be easier. Then I discovered playerctl and it's ease-of-use for getting the metadata of MPRIS media. It was pretty easy to get working, and this fork was born.
+I was having issues with getting the Spotify API to work, I believe their API has changed causing the original project to break (I don't remember the error). It might work fine... and I may just be stupid, but I spent about an hour reading Spotify docs trying to get it working with no success, and decided using something else would be easier. Using D-Bus directly is a much simpler and cleaner way to get music data.
 
 ## Credits
 
 - Genmon for making this possible, and being very easy to work with
 - All the StackOverflow community with their answers
-- [macr1408](https://github.com/macr1408) for original code, [userbyte](https://github.com/userbyte) for modifications to use playerctl instead of SpotifyAPI
+- [macr1408](https://github.com/macr1408) for original code, [userbyte](https://github.com/userbyte) to avoid using the Spotify Web API
